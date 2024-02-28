@@ -1,0 +1,85 @@
+import sqlite3
+
+DATABASE_FILE = 'employee_database.db'
+
+def create_database():
+    with sqlite3.connect(DATABASE_FILE) as connection:
+        cursor = connection.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS employees (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                address TEXT,
+                salary REAL
+            )
+        ''')
+
+def add_employee(name, address, salary):
+    with sqlite3.connect(DATABASE_FILE) as connection:
+        cursor = connection.cursor()
+        cursor.execute('INSERT INTO employees (name, address, salary) VALUES (?, ?, ?)', (name, address, salary))
+
+def remove_employee(employee_id):
+    with sqlite3.connect(DATABASE_FILE) as connection:
+        cursor = connection.cursor()
+        cursor.execute('DELETE FROM employees WHERE id = ?', (employee_id,))
+
+def update_employee(employee_id, name, address, salary):
+    with sqlite3.connect(DATABASE_FILE) as connection:
+        cursor = connection.cursor()
+        cursor.execute('''
+            UPDATE employees
+            SET name = ?, address = ?, salary = ?
+            WHERE id = ?
+        ''', (name, address, salary, employee_id))
+
+def search_employee_by_name(name):
+    with sqlite3.connect(DATABASE_FILE) as connection:
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM employees WHERE name LIKE ?', ('%' + name + '%',))
+        rows = cursor.fetchall()
+
+    if not rows:
+        print("No employees found with that name.")
+    else:
+        headers = ["ID", "Name", "Address", "Salary"]
+        print(tabulate(rows, headers, tablefmt="grid"))
+
+def main():
+    create_database()
+
+    while True:
+        print("\nEmployee Database Menu:")
+        print("1. Add Employee")
+        print("2. Remove Employee")
+        print("3. Update Employee")
+        print("4. Search Employee")
+        print("5. Exit")
+
+        choice = input("Enter your choice (1-5): ")
+
+        if choice == '1':
+            add_employee(input("Enter employee name: "), input("Enter employee address: "), float(input("Enter employee salary: ")))
+            print("Employee added successfully.")
+
+        elif choice == '2':
+            remove_employee(int(input("Enter employee ID to remove: ")))
+            print("Employee removed successfully.")
+
+        elif choice == '3':
+            employee_id = int(input("Enter employee ID to update: "))
+            update_employee(employee_id, input("Enter new name: "), input("Enter new address: "), float(input("Enter new salary: ")))
+            print("Employee updated successfully.")
+
+        elif choice == '4':
+            search_employee_by_name(input("Enter employee name to search: "))
+
+        elif choice == '5':
+            print("Exiting Employee Database. Goodbye!")
+            break
+
+        else:
+            print("Invalid choice. Please enter a number between 1 and 5.")
+
+if __name__ == "__main__":
+    main()
