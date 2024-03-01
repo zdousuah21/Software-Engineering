@@ -1,0 +1,56 @@
+// Required Libraries 
+import java.io.*;
+import javax.swing.JOptionPane;
+
+// Start of the class FileIO
+public class FileIO {
+    // Executable: Main method
+    public static void main(String[] args) {
+        // Variable Section
+        String userSentence;
+
+        // Input Section
+        userSentence = JOptionPane.showInputDialog("Enter a sentence:");
+
+        // Process Section: Write the sentence to a text file named "output.txt"
+        File outputFile = new File("output.txt");
+        boolean writeSuccess = writeToFile(outputFile, userSentence);
+
+        // Output Section: Display the result using JOptionPane
+        if (writeSuccess) {
+            String fileContent = readFromFile(outputFile);
+            if (fileContent != null) {
+                JOptionPane.showMessageDialog(null, "Sentence from file:\n" + fileContent, "File Content", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "Error reading from file", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Error writing to file", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Method to write the given content to the specified file
+    private static boolean writeToFile(File file, String content) {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            writer.println(content);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // Method to read content from the specified file
+    private static String readFromFile(File file) {
+        StringBuilder fileContent = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                fileContent.append(line);
+            }
+            return fileContent.toString();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+}
